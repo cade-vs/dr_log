@@ -1,0 +1,197 @@
+
+INTRO
+
+   DR LOG -- simple C highres timestamp prefixed file logging facility
+
+   Copyright (c) 2025 Vladi Belperchinov-Shabanski "Cade" 
+   https://cade.noxrun.com/  <cade@noxrun.com>
+   https://github.com/cade-vs/
+
+   DISTRIBUTED UNDER GPLv2 LICENSE 
+   SEE `README',`LICENSE' OR `COPYING' FILE FOR LICENSE AND OTHER DETAILS!
+   OR AT https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+*****************************************************************************
+
+OVERVIEW
+
+  A simple C logging library with high-resolution timestamps, time deltas
+  between messages, file locking for concurrent log file access, message 
+  prefixes for routing to separate log files, and optional debug output.
+
+  By default, output goes to stderr. Can be switched at runtime to write
+  to log files with automatic prefix-based routing.
+
+  All log files for the prefixes are kept open until explicitely closed with
+  dr_log_close_all() or when internal cache is maxed out (64 open logs are 
+  allowed). Reaching internal limit, the least used will be closed and 
+  replaced with currently requested one.
+
+FUNCTIONS
+
+  dr_log( fmt, ... )
+
+    Write a formatted message to the log. If the message starts with a
+    prefix (e.g. "auth: message"), the prefix is extracted and the message
+    is also written to a prefix-specific log file when file logging is
+    enabled.
+
+  dr_dbg(fmt, ...)
+
+    Write a debug message. Only produces output if debug is enabled with 
+    dr_log_debug_enable(). Otherwise is the same as de_log().
+
+  dr_log_msg( msg )
+
+    Simple alternative of dr_log() which does not allow variable number of
+    parameters but just single message string. Rules for prefixes are used but
+    will log regardless debug flag.
+
+  dr_log_debug_enable(enable)
+
+    Enable (1) or disable (0) debug logging. Disabled by default.
+
+  dr_log_is_debug()
+
+    Returns current debug state: 1 if enabled, 0 if disabled.
+
+  dr_log_use_files(enable)
+
+    Enable (1) or disable (0) file logging. When disabled (default),
+    output goes to stderr. When enabled, output goes to log files.
+
+  dr_log_using_files()
+
+    Returns current mode: 1 if using files, 0 if using stderr.
+
+  dr_log_set_file(file_name)
+
+    Set the global log file name. Pass NULL to disable. This can change log 
+    file name and will close previously open one. New file will not be open
+    until requested to be written to.
+
+  dr_log_get_file()
+
+    Returns current global log file name.
+
+  dr_log_set_dir(path,mode)
+
+    Set directory for prefix-specific log files. Pass NULL as path to disable
+    directory logging. Second parameter, mode, is used for creating 
+    non-existing directories along the specified path. If mode is 0 then 0755
+    mode will be used.
+
+  dr_log_get_dir()
+
+    Returns current log directory.
+
+  dr_log_close_all()
+  
+    Closes all open log files and reopen on request. Can be called anytime and
+    it is a good practice to call it upon process exit.
+
+MESSAGE PREFIXES
+
+  Prefixes route messages to separate log files. A prefix is detected
+  when a message starts with a word followed by a colon.
+
+  Prefix rules:
+    - Maximum 16 characters
+    - Letters, digits, and underscores only
+    - Followed by colon and optional space
+
+  Examples:
+    dr_log( "auth: User logged in" );     // writes to global.log + auth.log
+    dr_log( "db: Connected" );            // writes to global.log + db.log
+    dr_log( "No prefix here" );           // writes to global.log only
+    dr_log( "Print me this message: too long prefix" ); // no prefix used
+
+  When file logging is enabled, prefixed messages are written to both
+  the global log file and $log_dir/$prefix.log.
+
+
+LOG FORMAT
+
+  Without prefix:
+    YYYYMMDD-HHMMSS.uuu+S.mmm [pid] message
+
+  With prefix:
+    YYYYMMDD-HHMMSS.uuu+S.mmm [pid] (prefix) message
+
+  Fields:
+    YYYYMMDD    Date (year, month, day)
+    HHMMSS      Time (hour, minute, second)
+    uuu         Miliseconds
+    +S.mmm      Time since previous message (seconds.milliseconds)
+    [pid]       Pid of the current process
+    (prefix)    Message prefix (if present)
+    message     The log message
+
+
+USAGE EXAMPLE
+
+  #include "dr_log.h"
+
+  int main()
+  {
+    /* starts with stderr output */
+    dr_log("Application started");
+    dr_log("auth: User %s logged in", "john");
+
+    /* switch to file logging */
+    dr_log_use_files(1);
+    dr_log_set_file("/var/log/myapp.log");
+    dr_log_set_dir("/var/log");
+
+    dr_log("auth: Session created");
+    dr_log("db: Connected to %s", "postgres");
+
+    /* enable debug messages */
+    dr_log_debug_enable(1);
+    dr_dbg("auth: DEBUG: Token: %s", "abc123");
+
+    dr_log( "Shutting down" );
+    return 0;
+  }
+
+
+  Usually just one of log file and log dir is expected to be used. 
+  However there could be cases when using both may be usefly, so it is not
+  restricted.
+
+SAMPLE OUTPUT
+
+  stderr (before dr_log_use_files(1)):
+
+    20251129-143201.123+0.000 Application started
+    20251129-143201.123+0.000 (auth) User john logged in
+
+  /var/log/global.log:
+
+    20251129-143201.124+0.000 (auth) Session created
+    20251129-143201.124+0.000 (db) Connected to postgres
+    20251129-143201.124+0.000 (auth) DEBUG: Token: abc123
+    20251129-143201.124+0.000 Shutting down
+
+  /var/log/auth.log:
+
+    20251129-143201.124+0.000 (auth) Session created
+    20251129-143201.124+0.000 (auth) DEBUG: Token: abc123
+
+  /var/log/db.log:
+
+    20251129-143201.124+0.000 (db) Connected to postgres
+
+  /var/log/myapp.log will combine all the messages.
+
+SAFETY
+
+  "DR LOG" library is not thread safe but uses flock() to allow safe access
+  to the log files. If thread safety is needed, mutexes must be used around 
+  de_log(), de_dbg() and de_log_msg() calls.
+  
+WHAT IS "DR"?
+
+  Debug and Runtime :) nothing special really and is not "Doctor"!
+
+EOF
