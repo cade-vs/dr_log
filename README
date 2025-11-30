@@ -1,7 +1,7 @@
 
 INTRO
 
-   DR LOG -- simple C highres timestamp prefixed file logging facility
+   DR LOG -- simple C highres-timestamp prefixed file logging facility
 
    Copyright (c) 2025 Vladi Belperchinov-Shabanski "Cade" 
    https://cade.noxrun.com/  <cade@noxrun.com>
