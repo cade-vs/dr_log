@@ -155,8 +155,8 @@ USAGE EXAMPLE
   }
 
 
-  Usually just one of log file and log dir is expected to be used. 
-  However there could be cases when using both may be usefly, so it is not
+  Usually only one of either log file or log dir is expected to be used. 
+  However there could be cases when using both may be useful, so it is not
   restricted.
 
 SAMPLE OUTPUT
@@ -170,8 +170,8 @@ SAMPLE OUTPUT
 
     20251129-143201.124+0.000 (auth) Session created
     20251129-143201.124+0.000 (db) Connected to postgres
-    20251129-143201.124+0.000 (auth) DEBUG: Token: abc123
-    20251129-143201.124+0.000 Shutting down
+    20251129-143202.324+1.200 (auth) DEBUG: Token: abc123
+    20251129-143202.367+0.043 Shutting down
 
   /var/log/auth.log:
 
