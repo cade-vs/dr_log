@@ -213,10 +213,11 @@ void dr_log_msg( const char* msg )
   if( _use_files )
     {
     if( _log_fn[0] ) __log_file_write_single( msg_line );
-    __log_file_write_prefix( "global", msg_line );
-    if( prefix[0] ) __log_file_write_prefix( prefix, msg_line );
+                     __log_file_write_prefix( "global", msg_line );
+    if( prefix[0]  ) __log_file_write_prefix( prefix, msg_line );
     }
-  else
+
+  if( _use_stderr )
     {
     fputs( msg_line, stderr );
     }
