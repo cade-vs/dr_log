@@ -35,8 +35,9 @@ void fp_remove( const char *name, int all );
 
 
 static struct timespec last_ts = { 0, 0 };
-static int    _debug = 0;
-static int    _use_files = 0;
+static int    _debug      = 0;
+static int    _use_stderr = 1;
+static int    _use_files  = 0;
 static char   _log_dir[PATH_MAX]  = "";
 static char   _log_fn[PATH_MAX] = "";
 static FILE  *_log_fp = NULL;
@@ -54,6 +55,16 @@ void dr_log_debug_enable( int enable )
 int dr_log_is_debug()
 {
   return _debug;
+}
+
+void dr_log_use_stderr( int enable )
+{
+  _use_stderr = enable;
+}
+
+int  dr_log_using_stderr()
+{
+  return _use_stderr;
 }
 
 void dr_log_use_files( int enable )

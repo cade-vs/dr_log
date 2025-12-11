@@ -20,6 +20,8 @@
 void dr_log_debug_enable( int enable );
 int  dr_log_is_debug();
 
+void dr_log_use_stderr( int enable );
+int  dr_log_using_stderr();
 void dr_log_use_files( int enable );
 int  dr_log_using_files();
 

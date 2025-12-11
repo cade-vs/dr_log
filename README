@@ -55,20 +55,31 @@ FUNCTIONS
 
     Returns current debug state: 1 if enabled, 0 if disabled.
 
-  dr_log_use_files(enable)
+  dr_log_use_stderr( enable )
 
-    Enable (1) or disable (0) file logging. When disabled (default),
-    output goes to stderr. When enabled, output goes to log files.
+    Enable (1) or disable (0) STDERR logging. Enabled by default.
+
+  dr_log_using_stderr()
+
+    Returns current STDERR logging: 1 if using files, 0 if using stderr.
+
+  dr_log_use_files( enable )
+
+    Enable (1) or disable (0) file logging. Disabled by default.
 
   dr_log_using_files()
 
-    Returns current mode: 1 if using files, 0 if using stderr.
+    Returns current file or dir logging: 1 if using files, 0 if using stderr.
 
   dr_log_set_file(file_name)
 
     Set the global log file name. Pass NULL to disable. This can change log 
     file name and will close previously open one. New file will not be open
-    until requested to be written to.
+    until requested to be written to. 
+    
+    setting log file name enables files logging. can be later disabled or 
+    enabled with dr_log_use_files(), which will not remove already set 
+    file name.
 
   dr_log_get_file()
 
@@ -80,6 +91,11 @@ FUNCTIONS
     directory logging. Second parameter, mode, is used for creating 
     non-existing directories along the specified path. If mode is 0 then 0755
     mode will be used.
+    
+    setting log dir path enables files logging. can be later disabled or 
+    enabled with dr_log_use_files(), which will not remove already set 
+    log dir path.
+
 
   dr_log_get_dir()
 
