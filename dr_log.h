@@ -15,6 +15,8 @@
 #ifndef DR_LOG_H
 #define DR_LOG_H
 
+#include <sys/types.h>
+
 void dr_log_debug_enable( int enable );
 int  dr_log_is_debug();
 
